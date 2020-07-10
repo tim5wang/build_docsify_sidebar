@@ -9,7 +9,7 @@
 node ./build_sidebar.js
 ```
 
-## 说明
+## 生成说明：
 ``` js
 /**
  * @author tim5wang
