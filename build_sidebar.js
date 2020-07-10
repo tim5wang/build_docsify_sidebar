@@ -1,8 +1,8 @@
 /**
  * @author tim5wang
  * 用于自动生成 docsify的 `_sidebar.md` 格式目录文件
- * 1. 支持多层目录嵌套，在根目录生成全局目录树 `./_sidebar.md`
- * 2. 在每层子目录生成该目录的 `子目录/_sidebar.md` 和 `README.md`
+ * 1. 支持多层目录嵌套，在根目录生成全局目录树 `./_sidebar.md` 和 `README.md`
+ * 2. 在每层子目录生成该目录的 `子目录/_sidebar.md` 和 `子目录/README.md`
  * 3. 在根目录索引全部图片文件路径 `_images.md` 和 `_images.txt`
  * 
  * `_sidebar.md` 内容格式定义如下：
@@ -16,6 +16,8 @@
  *   - [文件名3](完整目录/文件名3.md)
  * ```
  * 
+ * 
+ * 
  * 对应的`EADME.md` 内容格式定义如下：
  * 
  * 文件层次用标题级别表示: 如三层目录 ### [底层目录名](完整三级目录/)
@@ -27,6 +29,10 @@
  * ###[文件名3](完整目录/文件名3.md)
  * ```
  * 
+ * 
+ 注意：README.md为了docsify的sidebar的美观，其内容改为和_sidebar.md一致的形式
+ * 
+
  * 图片文件索引 `_images.md`
  * ```md
  * ![图片1名](图片1完整路径)
@@ -41,6 +47,7 @@
 
 const fs = require("fs");
 const path = require('path');
+const url = require('url');
 
 const IMG_EXTS = ['.png','.jpg','.jpeg','.gif','.bmp']
 const MD_IGNORE = ['_sidebar.md','README.md','_images.md','_coverpage.md']
@@ -137,6 +144,16 @@ function travelSyn(deep, dir, callback) {
     });
 }
 
+function urlEncode(url){
+　　url = encodeURIComponent(url);
+　　url = url.replace(/\%3A/g, ":");
+　　url = url.replace(/\%2F/g, "/");
+　　url = url.replace(/\%3F/g, "?");
+　　url = url.replace(/\%3D/g, "=");
+　　url = url.replace(/\%26/g, "&");
+　　return url;
+}
+
 // multiple str
 function ms(str,n){
     let res="";
@@ -196,6 +213,11 @@ function removeItem(array,item){
     })
 }
 
+// replace space to %20
+function noSpace(str){
+    return str.replace(/\s{1,1}/g,'%20');
+}
+
 function travelFloder(pt){
     
     var docs = []
@@ -230,8 +252,8 @@ function imgsContent(imgs){
     var images_ = ""
 
     imgs.forEach(img=>{
-        images += `![${filename(img)}](${img})\n\n`;
-        images_ += `${img}\n`;
+        images += `![${filename(img)}](${noSpace(img)})\n\n`;
+        images_ += `${noSpace(img)}\n`;
     });
 
     return [images,images_]
@@ -248,12 +270,12 @@ function docsContent(docs){
             let p = ps[ps.length-1];
             if(dirExist.indexOf(p)==-1){
                 dirExist.push(p);
-                content_ += `${ms(' ',ps.length-1)}- [${getLastPath(doc)}](${p}/)\n\n`;
-                content += `${ms(' ',ps.length-1)}- [${getLastPath(doc)}](${p}/)\n\n`;
+                content_ += `${ms(' ',ps.length-1)}- [${getLastPath(doc)}](${noSpace(p)}/)\n\n`;
+                content += `${ms(' ',ps.length-1)}- [${getLastPath(doc)}](${noSpace(p)}/)\n\n`;
             }
         }
-        content_ += `${ms(' ',ps.length)}- [${filename(doc,true)}](${doc})\n\n`;
-        content += `${ms(' ',ps.length)}- [${filename(doc,true)}](${doc})\n\n`;
+        content_ += `${ms(' ',ps.length)}- [${filename(doc,true)}](${noSpace(doc)})\n\n`;
+        content += `${ms(' ',ps.length)}- [${filename(doc,true)}](${noSpace(doc)})\n\n`;
     })
     return [
         content,
@@ -283,9 +305,9 @@ function recurTravel(floder,pr){
             docc[1] = content_sb+docc[1];
         }else{
             const pn = getLastPath(pr);
-            const content_rm = `< [${pn}](${pr}) \n\n`;
+            const content_rm = `< [${pn}](${noSpace(pr)}) \n\n`;
             docc[0] = content_rm+docc[0];
-            const content_sb = `< [${pn}](${pr}) \n\n`;
+            const content_sb = `< [${pn}](${noSpace(pr)}) \n\n`;
             docc[1] = content_sb+docc[1];
         }
     }
@@ -302,5 +324,7 @@ function recurTravel(floder,pr){
         writeToFile(floder+'_images.txt',ic[1]);
     }
 }
+
+
 
 recurTravel('./')
