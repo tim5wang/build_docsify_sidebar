@@ -1,6 +1,6 @@
 # build_docsify_sidebar
 
-> 遍历docsify目录，生成_sidebar.md文件
+> 遍历docsify目录，生成_sidebar.md文件，支持嵌套的多层目录，支持返回上一级
 
 ## 使用方法：
 在你的docsify文档项目的根目录执行
